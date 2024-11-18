@@ -1,9 +1,11 @@
+"""Module for handling weather measurements and database operations."""
+
 import datetime
 from sqlalchemy import Column, Integer, String, Float
 from base import Base
 
 class Weather(Base):
-    """ Weather """
+    """ Weather Model Class """
     __tablename__ = "weather"
 
     id = Column(Integer, primary_key=True)
@@ -17,7 +19,17 @@ class Weather(Base):
     noise_level = Column(Float, nullable=False)
     date_created = Column(String(100), nullable=False)
 
-    def __init__(self, trace_id, reading_id, sensor_id, timestamp, temperature, humidity, wind_speed, noise_level):
+    def __init__(
+            self, 
+            trace_id, 
+            reading_id, 
+            sensor_id, 
+            timestamp, 
+            temperature, 
+            humidity, 
+            wind_speed, 
+            noise_level
+        ):
         """ Initializes a weather reading """
         self.trace_id = trace_id
         self.reading_id = reading_id

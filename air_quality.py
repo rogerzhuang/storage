@@ -1,9 +1,11 @@
+"""Module for handling air quality measurements and database operations."""
+
 import datetime
 from sqlalchemy import Column, Integer, String, Float
 from base import Base
 
 class AirQuality(Base):
-    """ Air Quality """
+    """ Air Quality Model Class """
     __tablename__ = "air_quality"
 
     id = Column(Integer, primary_key=True)
@@ -17,7 +19,17 @@ class AirQuality(Base):
     o3_level = Column(Float, nullable=False)
     date_created = Column(String(100), nullable=False)
 
-    def __init__(self, trace_id, reading_id, sensor_id, timestamp, pm2_5_concentration, pm10_concentration, co2_level, o3_level):
+    def __init__(
+            self, 
+            trace_id, 
+            reading_id, 
+            sensor_id, 
+            timestamp, 
+            pm2_5_concentration, 
+            pm10_concentration, 
+            co2_level, 
+            o3_level
+        ):
         """ Initializes an air quality reading """
         self.trace_id = trace_id
         self.reading_id = reading_id
