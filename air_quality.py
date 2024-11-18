@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float
-from sqlalchemy.sql.functions import now
-from base import Base
 import datetime
+from sqlalchemy import Column, Integer, String, Float
+from base import Base
 
 class AirQuality(Base):
     """ Air Quality """

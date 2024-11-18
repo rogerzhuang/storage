@@ -1,24 +1,24 @@
-import connexion
-from connexion import NoContent
-import yaml
+import datetime
+import json
 import logging
 import logging.config
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import and_
-from base import Base
-from air_quality import AirQuality
-from weather import Weather
-import datetime
+from threading import Thread
+
+import connexion
+from connexion import NoContent
 import pymysql
-import json
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
-from threading import Thread
+from sqlalchemy import create_engine, and_
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.orm import sessionmaker
+import yaml
 
-with open('log_config.yml', 'r') as f:
+from air_quality import AirQuality
+from base import Base
+from weather import Weather
+
+with open('log_config.yml', 'r', encoding='utf-8') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
 
@@ -29,14 +29,16 @@ with open('app_config.yml', 'r') as f:
 
 datastore_config = app_config['datastore']
 
-logger.info(f"Connecting to DB. Hostname:{datastore_config['hostname']}, Port:{datastore_config['port']}")
+logger.info("Connecting to DB. Hostname:%s, Port:%s",
+           datastore_config['hostname'],
+           datastore_config['port'])
 
 # DB_ENGINE = create_engine("sqlite:///smart_city.sqlite")
 DB_ENGINE = create_engine(
     f"mysql+pymysql://{datastore_config['user']}:{datastore_config['password']}@{datastore_config['hostname']}:{datastore_config['port']}/{datastore_config['db']}",
     pool_size=5,
     max_overflow=10,
-    pool_recycle=300,  # Recycle connections after 1 hour
+    pool_recycle=300,  # Recycle connections after 5 minutes
     pool_pre_ping=True  # Enable connection health checks
 )
 Base.metadata.bind = DB_ENGINE
@@ -147,7 +149,7 @@ def process_messages():
         try:
             msg_str = msg.value.decode('utf-8')
             msg = json.loads(msg_str)
-            logger.info(f"Message: {msg}")
+            logger.info("Message: %s", msg)
             payload = msg["payload"]
             
             if msg["type"] == "air_quality":
@@ -177,10 +179,10 @@ def process_messages():
             consumer.commit_offsets()
             
         except OperationalError as e:
-            logger.error(f"Database operational error: {str(e)}")
+            logger.error("Database operational error: %s", str(e))
             session.rollback()
         except Exception as e:
-            logger.error(f"Processing error: {str(e)}")
+            logger.error("Processing error: %s", str(e))
             session.rollback()
         finally:
             session.close()
@@ -190,6 +192,6 @@ app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 
 if __name__ == "__main__":
     t1 = Thread(target=process_messages)
-    t1.setDaemon(True)
+    t1.daemon = True
     t1.start()
     app.run(port=8090, host="0.0.0.0")

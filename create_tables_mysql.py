@@ -1,12 +1,21 @@
+"""MySQL database table creation module."""
+
 import mysql.connector
+import yaml
 
 def create_tables():
+    """Creates the required database tables if they don't exist."""
+    # Load database configuration
+    with open('app_config.yml', 'r', encoding='utf-8') as f:
+        config = yaml.safe_load(f)
+        db_config = config['datastore']
+
     conn = mysql.connector.connect(
-        user='roger',
-        password='axl320n24h',
-        host='acit3855-kafka.westus.cloudapp.azure.com',
-        port=3306,
-        database='events'
+        user=db_config['user'],
+        password=db_config['password'],
+        host=db_config['hostname'],
+        port=db_config['port'],
+        database=db_config['db']
     )
     c = conn.cursor()
 
