@@ -116,6 +116,7 @@ def get_air_quality_readings(start_timestamp, end_timestamp):
 
 def get_weather_readings(start_timestamp, end_timestamp):
     """ Gets new weather readings between the start and end timestamps """
+    logger.info("DEMO!!!")
     logger.info(f"Received request for weather readings between {start_timestamp} and {end_timestamp}")
 
     session = DB_SESSION()
